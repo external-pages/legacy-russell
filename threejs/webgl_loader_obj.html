@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>legacy russell</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+		<style>
+			body {
+				margin: 0px;
+				overflow: hidden;
+				background-color: black;
+			}
+			#info {
+				color: #fff;
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display: block;
+				margin-top: 150px;
+			}
+			#info a,
+			.button {
+				color: #f00;
+				font-weight: bold;
+				text-decoration: underline;
+				cursor: pointer;
+			}
+			#info {
+				color: red;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="../build/three.js"></script>
+		<script src="js/loaders/OBJLoader.js"></script>
+		<script src="js/controls/TrackballControls.js"></script>
+		<script src="js/renderers/CSS3DRenderer.js"></script>
+
+		<div id="info"> <a id="play-video" href="#" rel="noopener">Play Video</a></div>
+		<!-- <div id="info"><button onclick="playVid()" type="button">Play Video</button></div> -->
+
+		<script>
+			var container
+
+			var object
+
+			var camera, scene, renderer, glScene, cssScene, glRenderer, cssRenderer
+
+			var mouseX = 0,
+				mouseY = 0
+
+			// create renderer
+
+			function createGlRenderer() {
+				var glRenderer = new THREE.WebGLRenderer({ alpha: true })
+
+				glRenderer.setPixelRatio(window.devicePixelRatio)
+				glRenderer.setSize(window.innerWidth, window.innerHeight)
+
+				glRenderer.domElement.style.position = "absolute"
+				glRenderer.domElement.style.zIndex = 1
+				glRenderer.domElement.style.top = 0
+
+				return glRenderer
+			}
+
+			// create css3D renderer
+
+			function createCssRenderer() {
+				var cssRenderer = new THREE.CSS3DRenderer()
+
+				cssRenderer.setSize(window.innerWidth, window.innerHeight)
+
+				cssRenderer.domElement.style.position = "absolute"
+				glRenderer.domElement.style.zIndex = 0
+				cssRenderer.domElement.style.top = 0
+
+				return cssRenderer
+			}
+
+			// create plane for css3D to latch onto
+
+			function createPlane(w, h, position, rotation) {
+				var material = new THREE.MeshBasicMaterial({
+					color: 0x000000,
+					opacity: 0.0
+				})
+
+				var geometry = new THREE.PlaneGeometry(w, h)
+
+				var mesh = new THREE.Mesh(geometry, material)
+
+				mesh.position.x = position.x
+				mesh.position.y = position.y
+				mesh.position.z = position.z
+
+				mesh.rotation.x = position.x
+				mesh.rotation.y = rotation.y
+				mesh.rotation.z = rotation.z
+
+				return mesh
+			}
+
+			// create object with css3D
+
+			function createCssObject(w, h, position, rotation, url) {
+				var html = [
+					'<video id="blackmeme-canvas" style="width:' + w + "px; height:" + h + 'px; z-index: 110;">',
+					'<source id="blackmeme" style="z-index: 120;" src="' + url + '" width="' + w + '" height="' + h + '">',
+					"</video>",
+					"</video>"
+				].join("\n")
+
+				var div = document.createElement("div")
+				div.setAttribute("id", "video")
+
+				$(div).html(html)
+
+				var cssObject = new THREE.CSS3DObject(div)
+
+				cssObject.position.x = rotation.x
+				cssObject.position.y = position.y
+				cssObject.position.z = position.z
+
+				cssObject.rotation.x = -0.35 // rotate on x-axis
+				// cssObject.position.x = rotation.x
+				cssObject.rotation.y = rotation.y
+				cssObject.rotation.z = rotation.z
+
+				return cssObject
+			}
+
+			// create 3D page with css3D object
+
+			function create3dPage(w, h, position, rotation, url) {
+				var plane = createPlane(w, h, position, rotation)
+
+				glScene.add(plane)
+
+				var cssObject = createCssObject(w, h, position, rotation, url)
+
+				cssScene.add(cssObject)
+			}
+
+			init()
+			animate()
+
+			function init() {
+				container = document.createElement("div")
+				// div.setAttribute("id", "gl")
+				document.body.appendChild(container)
+
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000)
+				camera.position.set(0, 0, 1500)
+
+				controls = new THREE.TrackballControls(camera)
+
+				glRenderer = createGlRenderer()
+				cssRenderer = createCssRenderer()
+
+				// scene
+
+				scene = new THREE.Scene()
+
+				document.body.appendChild(cssRenderer.domElement)
+				cssRenderer.domElement.appendChild(glRenderer.domElement)
+
+				glScene = new THREE.Scene()
+				cssScene = new THREE.Scene()
+
+				// light
+
+				var ambientLight = new THREE.AmbientLight(0xcccccc, 0.4)
+				scene.add(ambientLight)
+
+				var light = new THREE.AmbientLight(0x404040); // soft white light
+				scene.add( light );
+
+				var pointLight = new THREE.PointLight(0xffffff, 0.8)
+				camera.add(pointLight)
+
+				scene.add(camera)
+
+				// put video in 3D page
+
+				create3dPage(800, 500, new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 0), "BLACK_MEME_2020_VOL.mp4")
+
+				function loadModel() {
+					object.traverse(function(child) {
+						if (child.isMesh) {
+							// child.material.map = texture;
+							child.material.ambient = pointLight
+							child.material.color = colour
+						}
+					})
+					object.scale.set(110, 110, 110)
+					object.position.set(0, -310, 415)
+					scene.add(object)
+				}
+
+				// model
+
+				var manager = new THREE.LoadingManager(loadModel)
+				manager.onProgress = function(item, loaded, total) {
+					console.log(item, loaded, total)
+				}
+
+				var colour = new THREE.Color(0x222426)
+
+				var textureLoader = new THREE.TextureLoader(manager)
+				var texture = textureLoader.load("textures/UV_Grid_Sm.jpg")
+				function onProgress(xhr) {
+					if (xhr.lengthComputable) {
+						var percentComplete = (xhr.loaded / xhr.total) * 100
+						console.log("model " + Math.round(percentComplete, 2) + "% downloaded")
+					}
+				}
+
+				function onError(xhr) {}
+
+				var loader = new THREE.OBJLoader(manager)
+
+				loader.load(
+					"models/laptop-edited.obj",
+					function(obj) {
+						object = obj
+					},
+					onProgress,
+					onError
+				)
+
+				renderer = new THREE.WebGLRenderer()
+				renderer.setPixelRatio(window.devicePixelRatio)
+				renderer.setSize(window.innerWidth, window.innerHeight)
+				container.appendChild(renderer.domElement)
+
+				window.addEventListener("resize", onWindowResize, false)
+
+				update()
+			}
+
+			function update() {
+				controls.update()
+
+				glRenderer.render(glScene, camera)
+
+				cssRenderer.render(cssScene, camera)
+
+				requestAnimationFrame(update)
+			}
+
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2
+				windowHalfY = window.innerHeight / 2
+
+				camera.aspect = window.innerWidth / window.innerHeight
+				camera.updateProjectionMatrix()
+
+				renderer.setSize(window.innerWidth, window.innerHeight)
+			}
+
+			function animate() {
+				requestAnimationFrame(animate)
+				render()
+			}
+
+			function render() {
+				camera.lookAt(scene.position)
+
+				renderer.render(scene, camera)
+			}
+		</script>
+		<script>
+			$(document).ready(function() {
+				$("#play-video").on("click", function(ev) {
+					$("#blackmeme")[0].src += "&autoplay=1"
+					ev.preventDefault()
+				})
+			})
+
+			// var vid = document.getElementById("blackmeme")
+
+			// window.onload=function playVid() {
+			// 	vid.play()
+			// }
+		</script>
+	</body>
+</html>
