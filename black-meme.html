@@ -190,9 +190,18 @@
                 texture.magFilter = THREE.LinearFilter
                 texture.format = THREE.RGBFormat
                 ;(material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide })), (plane = new THREE.Mesh(geometry, material))
-                // pointLight = new THREE.PointLight(0x5a5a5a, 0.05)
                 plane.rotation.x = -0.055
                 scene.add(plane)
+
+                // loading gif
+
+                var planeGeometry2 = new THREE.PlaneGeometry(425, 45, 1);
+                var texture2 = new THREE.TextureLoader().load( '9.png' );
+                var planeMaterial2 = new THREE.MeshLambertMaterial( { map: texture2 } );
+                var loading = new THREE.Mesh(planeGeometry2, planeMaterial2);
+                loading.position.set(0, 230, -15) //z: negative goes closer
+                loading.rotation.x = 0.02
+                scene.add(loading);
 
                 // light
 
@@ -225,7 +234,7 @@
                         }
                     })
                     object.scale.set(110, 110, 110)
-                    object.position.set(0, -400, 309)
+                    object.position.set(0, -400, 308)
                     scene.add(object)
                 }
 
