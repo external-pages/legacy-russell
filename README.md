@@ -1,4 +1,4 @@
 # legacy-russell
 
-add `laptop-edited.obj` in a `models` folder <br>
-add `BLACK_MEME_2020_VOL.mp4`
+add `BLACK_MEME_2020_VOL.mp4`<br>
+include `three.js-master` outside this directory
