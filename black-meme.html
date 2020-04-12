@@ -50,10 +50,6 @@
                 position: absolute;
                 color: blue;
                 z-index: 9999999;
-                /*top: 50%;
-                left: 50%;
-                margin-right: -50%;
-                transform: translate(-50%, -50%);*/
             }
 
             .buttons,
@@ -180,7 +176,7 @@
                 ;(renderer = new THREE.WebGLRenderer()), (camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 80000))
                 camera.position.z = 1050
                 camera.position.y = -250
-                camera.rotation.x = 0
+                // camera.rotation.x = 1050
 
                 // scene
 
@@ -194,8 +190,8 @@
                 texture.magFilter = THREE.LinearFilter
                 texture.format = THREE.RGBFormat
                 ;(material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide })), (plane = new THREE.Mesh(geometry, material))
-                pointLight = new THREE.PointLight(0xffffff)
-                plane.rotation.x = -0.35
+                // pointLight = new THREE.PointLight(0x5a5a5a, 0.05)
+                plane.rotation.x = -0.055
                 scene.add(plane)
 
                 // light
@@ -206,10 +202,9 @@
                 var light = new THREE.AmbientLight(0x404040)
                 scene.add(light)
 
-                var pointLight = new THREE.PointLight(0xffffff, 0.8)
+                var pointLight = new THREE.PointLight(0xffffff, 0.2)
                 camera.add(pointLight)
 
-                camera.rotation.x = 90
                 scene.add(camera)
 
                 controls = new THREE.OrbitControls(camera)
@@ -220,7 +215,7 @@
 
                 // model
 
-                var colour = new THREE.Color(0x222426)
+                var colour = new THREE.Color(0x1e1e1e)
 
                 function loadModel() {
                     object.traverse(function(child) {
@@ -230,7 +225,7 @@
                         }
                     })
                     object.scale.set(110, 110, 110)
-                    object.position.set(0, -310, 415)
+                    object.position.set(0, -400, 309)
                     scene.add(object)
                 }
 
@@ -242,7 +237,7 @@
 
                 var loader = new THREE.OBJLoader(manager, loading)
                 loader.load(
-                    "models/laptop-edited3.obj",
+                    "models/laptop-edited-rotated.obj",
                     function(obj) {
                         object = obj
                         scene.add(obj)
@@ -294,7 +289,7 @@
             }
 
             function render() {
-                camera.lookAt(scene.position)
+                // camera.lookAt(scene.position)
                 renderer.render(scene, camera)
             }
         </script>
